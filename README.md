@@ -98,9 +98,11 @@ ChatOps Telegram Bot — это простой и расширяемый бот 
     и др.
 
 🧪 **Тестирование**
+
     ```bash
     source venv/bin/activate
     pytest --maxfail=1 -q
+    ```
 
 🔄 **CI/CD**
     Файл: .github/workflows/ci.yml
