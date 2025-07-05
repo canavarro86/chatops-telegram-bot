@@ -1,13 +1,11 @@
-# .github/workflows/ci.yml
 name: CI
 
-# Добавляем ручной триггер
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:    # ← вот он, без него API dispatch не работает
+  workflow_dispatch:
 
 jobs:
   lint-test-build:

@@ -1,4 +1,3 @@
-# bot/services/ci_api.py
 import requests
 from config.config import SETTINGS
 
@@ -12,7 +11,7 @@ class CIAPI:
 
     def trigger_build(self, workflow_id: str, ref: str = "main"):
         """
-        Запускает workflow по его ID или имени файла (например, 'ci.yml') на ветке ref.
+        Запускает workflow по его ID или имени файла на ветке ref.
         """
         url = f"{self.base}/workflows/{workflow_id}/dispatches"
         payload = {"ref": ref}
