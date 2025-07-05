@@ -1,0 +1,4 @@
+telegram_token: "ВАШ_TELEGRAM_TOKEN"
+github_token:  "ВАШ_GITHUB_TOKEN"
+jwt_secret:    "ВАШ_JWT_SECRET"
+github_repo:   "username/repo"

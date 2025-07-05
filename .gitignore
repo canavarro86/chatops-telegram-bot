@@ -1,9 +1,12 @@
 # Python
 __pycache__/
 *.py[cod]
+.venv/
+.env
+
 
 # Виртуальное окружение
-venv/
+.venv/
 .env
 
 # VS Code
@@ -20,3 +23,5 @@ dist/
 
 # Системные файлы
 .DS_Store
+
+config/config.yaml
