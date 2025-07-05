@@ -20,12 +20,11 @@ def verify_jwt(token: str):
     except jwt.PyJWTError:
         return None
 
-# /start
 @dp.message(Command("start"))
 async def cmd_start(message):
     await message.answer("Привет! Я ChatOps бот. Введите /help для списка команд.")
 
-# Регистрируем остальные команды
+# Регистрируем другие команды (issues, build, workflows)
 register_handlers(dp, verify_jwt)
 
 if __name__ == "__main__":
