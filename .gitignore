@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Виртуальное окружение
+venv/
+.env
+
+# VS Code
+.vscode/
+
+# Docker
+docker-compose.override.yml
+*.log
+
+# Пакеты и сборки
+build/
+dist/
+*.egg-info/
+
+# Системные файлы
+.DS_Store
