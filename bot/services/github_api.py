@@ -11,7 +11,7 @@ class GitHubAPI:
             "Accept": "application/vnd.github.v3+json"
         }
 
-    def list_issues(self, repo: str):
+    def list_issues(self):
         url = f"{self.base}/issues"
         resp = requests.get(url, headers=self.headers)
         resp.raise_for_status()

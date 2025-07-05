@@ -4,18 +4,20 @@ import os
 import yaml
 from types import SimpleNamespace
 
-CONFIG_PATH = os.getenv("CONFIG_PATH", "config/config.yaml")
+# Попробуем сначала .yml, потом .yaml
+DEFAULT_PATHS = [
+    os.getenv("CONFIG_PATH"),            # если задано в env
+    "config/config.yml",
+    "config/config.yaml"
+]
 
-def load_config(path: str = CONFIG_PATH) -> SimpleNamespace:
-    """
-    Загружает YAML-конфиг и возвращает объект с атрибутами.
-    """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Config file not found: {path}")
+def load_config() -> SimpleNamespace:
+    path = next((p for p in DEFAULT_PATHS if p and os.path.exists(p)), None)
+    if path is None:
+        raise FileNotFoundError(f"Config file not found. Searched: {DEFAULT_PATHS}")
     with open(path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
-    # Преобразуем dict в Namespace для удобства dot-notation
     return SimpleNamespace(**data)
 
-# Загружаем конфиг сразу при импорте
 SETTINGS = load_config()
+
