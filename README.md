@@ -65,6 +65,7 @@ ChatOps Telegram Bot — это простой и расширяемый бот 
 3. **Копируем пример конфига и правим**
     ```bash
     cp config/config.yaml.example config/config.yaml
+    ```
 
     В config/config.yaml задайте:
     ```yaml
@@ -72,15 +73,18 @@ ChatOps Telegram Bot — это простой и расширяемый бот 
     github_token:  "ВАШ_GITHUB_TOKEN"
     jwt_secret:    "ВАШ_JWT_SECRET"
     github_repo:   "username/repo"
+    ```
 
 
 4. **Запускаем локально**
     ```bash
     docker-compose up --build
+    ```
 
     или без Docker:
     ```bash
     python bot/main.py
+    ```
 
 5. **Проверяем бота**
     В Telegram отправьте /start — бот должен ответить приветствием.
