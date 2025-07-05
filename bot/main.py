@@ -1,5 +1,3 @@
-# bot/main.py
-
 import logging
 import jwt
 
@@ -13,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=SETTINGS.telegram_token)
 dp = Dispatcher()
 
-# JWT-проверка
+# JWT-проверка, возвращает полезную нагрузку или None
 def verify_jwt(token: str):
     try:
         return jwt.decode(token, SETTINGS.jwt_secret, algorithms=["HS256"])
@@ -24,7 +22,18 @@ def verify_jwt(token: str):
 async def cmd_start(message):
     await message.answer("Привет! Я ChatOps бот. Введите /help для списка команд.")
 
-# Регистрируем другие команды (issues, build, workflows)
+@dp.message(Command("help"))
+async def cmd_help(message):
+    await message.answer(
+        "Доступные команды:\n"
+        "/issues — показать открытые задачи\n"
+        "/workflows — показать workflows CI/CD\n"
+        "/build <токен> <id> — запустить workflow\n"
+        "/status <токен> <id> — статус последнего run\n"
+        "/comment <токен> <номер> <текст> — коммент к Issue"
+    )
+
+# Регистрируем остальные
 register_handlers(dp, verify_jwt)
 
 if __name__ == "__main__":

@@ -1,45 +1,57 @@
-# bot/handlers/commands.py
-
 import requests
 from aiogram import types
 from aiogram.filters import Command
 from config.config import SETTINGS
 from bot.services.github_api import GitHubAPI
 from bot.services.ci_api import CIAPI
+from requests.exceptions import HTTPError
 
 def register_handlers(dp, verify_jwt):
     gh = GitHubAPI()
     ci = CIAPI()
 
+    # Открытая команда: просто выдаёт список issues
     @dp.message(Command("issues"))
     async def cmd_issues(message: types.Message):
-        user = verify_jwt(message.text)
-        if not user:
-            return await message.reply("❌ Неверный токен.")
-        issues = gh.list_issues(SETTINGS.github_repo)
+        issues = gh.list_issues()
+        if not issues:
+            return await message.reply("Задач не найдено.")
         text = "\n".join(f"- #{i['number']} {i['title']}" for i in issues)
         await message.reply(f"Открытые задачи:\n{text}")
 
+    # /comment требует JWT
     @dp.message(lambda m: m.text and m.text.startswith("/comment "))
     async def cmd_comment(message: types.Message):
-        """
-        /comment <issue_number> <text>
-        """
-        parts = message.text.split(maxsplit=2)
-        if len(parts) < 3:
-            return await message.reply("Использование: /comment <номер> <текст>")
-        issue_number, comment = parts[1], parts[2]
+        # формат: /comment <jwt> <issue_number> <текст>
+        parts = message.text.split(maxsplit=3)
+        if len(parts) < 4:
+            return await message.reply("Использование: /comment <токен> <номер> <текст>")
+        token, issue_str, comment = parts[1], parts[2], parts[3]
+        if not verify_jwt(token):
+            return await message.reply("❌ Неверный токен.")
         try:
-            num = int(issue_number)
+            num = int(issue_str)
         except ValueError:
             return await message.reply("Номер issue должен быть числом.")
-        resp = gh.comment_issue(num, comment)
-        await message.reply(f"Коммент добавлен: {resp.get('html_url', 'успешно')}")
+        try:
+            resp = gh.comment_issue(num, comment)
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                return await message.reply(f"Issue #{num} не найден.")
+            raise
+        url = resp.get("html_url") or resp.get("url")
+        await message.reply(f"Коммент добавлен: {url}")
 
+    # /build требует JWT
     @dp.message(lambda m: m.text and m.text.startswith("/build "))
     async def cmd_build(message: types.Message):
-        parts = message.text.split(maxsplit=1)
-        workflow_id = parts[1]
+        # формат: /build <токен> <workflow_id>
+        parts = message.text.split(maxsplit=2)
+        if len(parts) < 3:
+            return await message.reply("Использование: /build <токен> <workflow_id>")
+        token, workflow_id = parts[1], parts[2]
+        if not verify_jwt(token):
+            return await message.reply("❌ Неверный токен.")
         result = ci.trigger_build(workflow_id)
         await message.reply(f"Запуск сборки `{workflow_id}`: {result}")
 
@@ -49,15 +61,21 @@ def register_handlers(dp, verify_jwt):
         resp = requests.get(url, headers=gh.headers)
         resp.raise_for_status()
         data = resp.json().get("workflows", [])
+        if not data:
+            return await message.reply("Workflows не найдены.")
         lines = [f"- id: {w['id']}, name: {w['name']}, path: {w['path']}" for w in data]
         await message.reply("Доступные workflows:\n" + "\n".join(lines))
 
+    # /status требует JWT
     @dp.message(Command("status"))
     async def cmd_status(message: types.Message):
-        parts = message.text.split(maxsplit=1)
-        wf_id = parts[1] if len(parts) > 1 else None
-        if not wf_id:
-            return await message.reply("Укажите ID workflow: /status <id>")
+        # формат: /status <токен> <workflow_id>
+        parts = message.text.split(maxsplit=2)
+        if len(parts) < 3:
+            return await message.reply("Использование: /status <токен> <workflow_id>")
+        token, wf_id = parts[1], parts[2]
+        if not verify_jwt(token):
+            return await message.reply("❌ Неверный токен.")
         status = ci.get_last_run(wf_id)
         if not status:
             return await message.reply("Запусков не найдено.")
