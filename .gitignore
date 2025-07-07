@@ -1,27 +1,28 @@
-# Python
+# Python byte-code and test caches
 __pycache__/
 *.py[cod]
+.pytest_cache/
+
+# Virtual environments & local env files
 .venv/
 .env
 
-
-# Виртуальное окружение
-.venv/
-.env
-
-# VS Code
+# IDE settings
 .vscode/
 
-# Docker
+# Docker overrides & logs
 docker-compose.override.yml
 *.log
 
-# Пакеты и сборки
+# Build artifacts
 build/
 dist/
 *.egg-info/
 
-# Системные файлы
+# System files
 .DS_Store
 
+# Local configuration (contains secrets)
 config/config.yaml
+bot/services/github_client.py
+tests/test_github_client.py
